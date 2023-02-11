@@ -5,58 +5,27 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 const MessageItem = ({ message }) => {
   const { item } = message;
   const date = new Date(item.date).toLocaleDateString('tr-TR');
-  const time = new Date(item.date).toLocaleTimeString('tr-TR');
+  const time = new Date(item.date).toLocaleTimeString('tr-TR').slice(0, 5);
   const dateFormat = `${date} ${time}`;
 
   return (
-    <ListItem bottomDivider>
-      <ListItem.Content>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <View style={styles.itemView}>
-            <Text>{item.content}</Text>
-          </View>
-
-          <View>
-            <Text>{dateFormat}</Text>
-          </View>
+    <View>
+      <View
+        className={
+          item.fromSelf === true
+            ? 'flex-column justify-start self-end w-auto  bg-green-600 text-base mb-8 rounded-lg  p-2 m-4'
+            : 'flex-column justify-end self-start w-auto  bg-zinc-500 text-base mb-8  rounded-lg  p-2 m-4'
+        }
+      >
+        <View>
+          <Text className="text-white">{item.content}</Text>
         </View>
-      </ListItem.Content>
-    </ListItem>
+        <View className="flex flex-row justify-end  items-end">
+          <Text className="text-white text-right text-xs">{time}</Text>
+        </View>
+      </View>
+    </View>
   );
 };
 
 export default MessageItem;
-
-const styles = StyleSheet.create({
-  itemView: {
-    display: 'flex',
-    width: '100%',
-    flexDirection: 'row',
-  },
-  avatarView: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
-    flexBasis: 'auto',
-  },
-  textView: {
-    display: 'flex',
-    flexBasis: 'auto',
-    flexDirection: 'row',
-    alignSelf: 'center',
-    marginHorizontal: 4,
-  },
-  actionsView: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-});

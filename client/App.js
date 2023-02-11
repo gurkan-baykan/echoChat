@@ -18,7 +18,15 @@ const App = () => {
     <NavigationContainer>
       <ListContextProvider>
         <Stack.Navigator initialRouteName="List">
-          <Stack.Screen name="List" component={List} />
+          <Stack.Screen
+            name="List"
+            component={List}
+            options={{
+              headerShown: false,
+              headerShadowVisible: false,
+              headerBackTitleVisible: false,
+            }}
+          />
           <Stack.Screen name="ListDetails" component={ListDetails} />
           <Stack.Screen name="AddNewRecord" component={AddNewRecord} />
         </Stack.Navigator>

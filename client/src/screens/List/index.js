@@ -1,72 +1,116 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Dimensions, FlatList, Text } from 'react-native';
-import { Input, FAB } from '@rneui/base';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  SafeAreaView,
+  View,
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
+import { Input, FAB, Image } from '@rneui/base';
 import MessageItem from './components/MessageItem';
 import { sendMessage, getMessage } from '../../services/List';
-import { styled } from 'nativewind';
+import ToastComponent from '../../components/ToastComponent';
 
 const List = ({ navigation }) => {
-  const screenHeight = Dimensions.get('screen').height - 200;
+  const screenHeight = Dimensions.get('screen').height - 90;
   const [messageContent, setMessageContent] = useState('');
   const [messages, setMessages] = useState([]);
-
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef();
+  const toastRef = useRef();
   const getAllMessages = useCallback(() => {
+    setLoading(true);
     getMessage().then(({ data }) => {
-      console.debug(data);
       setMessages(data);
+      setLoading(false);
     });
   }, []);
 
   const postMessage = async () => {
     await sendMessage({ content: messageContent, fromSelf: 1 });
-
-    await sendMessage({ content: messageContent, fromSelf: 0 });
-    setMessageContent('');
     getAllMessages();
+    setMessageContent('');
+    inputRef.current.focus();
+    setTimeout(async () => {
+      await sendMessage({ content: messageContent, fromSelf: 0 });
+      getAllMessages();
+      toastRef.current.showToast({ type: 'error', text: messageContent });
+    }, 1000);
   };
+
   useEffect(() => {
     getAllMessages();
   }, []);
-  const StyledView = styled(View);
+
   return (
     <View>
       <View style={{ height: screenHeight }}>
         <SafeAreaView className="flex">
+          <View className="flex flex-row bg-zinc-400 w-full items-center  ">
+            <Image
+              width={150}
+              height={50}
+              source={{
+                uri: 'https://uploads-ssl.webflow.com/612381c75233fd1ece6495d7/61978f7cc90168e5b9532920_MB_logo_horizontal_color.png',
+              }}
+              style={{ width: 150, height: 50, marginHorizontal: 8 }}
+              resizeMode={'contain'}
+            />
+            <Text className="text-lg mx-3"> Canlı Destek</Text>
+          </View>
           {messages.length ? (
             <FlatList
+              style={{ height: 650, flexGrow: 0 }}
               data={messages}
               renderItem={item => <MessageItem message={item} />}
+              onEndReachedThreshold={0.2}
+              onEndReached={() => getAllMessages()}
               keyExtractor={item => item._id}
+              inverted
+              contentContainerStyle={{ flexDirection: 'column-reverse' }}
             />
           ) : (
             <></>
           )}
         </SafeAreaView>
       </View>
-      <View className="flex-1 items-center justify-center bg-black">
-        <Text>Open up App.js to start working on your app!</Text>
-      </View>
-      <StyledView className="flex flex-1 flex-row mx-12 ">
-        <StyledView className="flex flex-5 flex-row bg-white border-rad rounded-lg mx-8">
+
+      <View className="flex flex-2 flex-row mx-1 items-center">
+        <View className="flex  flex-1 flex-row">
           <Input
+            ref={inputRef}
+            placeholder="Bir mesaj yazın"
             value={messageContent}
             renderErrorMessage={false}
-            inputStyle={{ width: 200 }}
-            inputContainerStyle={{ borderBottomWidth: 0, height: 50 }}
+            onSubmitEditing={postMessage}
+            inputContainerStyle={styles.inputContainer}
             onChangeText={text => setMessageContent(text)}
           />
-        </StyledView>
+        </View>
 
-        <View style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <View style={{ display: 'flex', justifyContent: 'center' }}>
           <FAB
             visible={true}
             icon={{ name: 'send', color: 'white' }}
-            color="blue"
+            color="#0b65a3"
+            size="large"
             onPress={() => postMessage()}
           />
         </View>
-      </StyledView>
+      </View>
     </View>
   );
 };
 export default List;
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    borderBottomWidth: 0,
+    backgroundColor: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+});

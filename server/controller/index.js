@@ -17,7 +17,8 @@ export const saveMessage = async (message = null) => {
 
 export const getMessages = async () => {
   try {
-    const messages = await Message.find({}).sort({ date: "desc" });
+    const messages = await Message.find({}).sort({ date: "asc" }).limit(20);
+
     if (messages) return messages;
   } catch (err) {
     return err;
