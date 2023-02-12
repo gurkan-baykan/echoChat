@@ -1,12 +1,9 @@
 import React from 'react';
-import { ListItem, Icon, Avatar } from '@rneui/themed';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 const MessageItem = ({ message }) => {
   const { item } = message;
-  const date = new Date(item.date).toLocaleDateString('tr-TR');
   const time = new Date(item.date).toLocaleTimeString('tr-TR').slice(0, 5);
-  const dateFormat = `${date} ${time}`;
 
   return (
     <View>

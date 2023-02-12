@@ -10,7 +10,6 @@ const ListContext = createContext();
 
 export const ListContextProvider = ({ children }) => {
   const initialState = {
-    skip: 1,
     pageSize: 10,
   };
 

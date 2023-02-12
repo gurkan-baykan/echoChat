@@ -4,8 +4,7 @@ import Message from "../models/message.js";
 export const saveMessage = async (message = null) => {
   try {
     const createdDt = new Date();
-    console.log(createdDt);
-
+    message["date"] = createdDt;
     const newFilm = new Message(message);
     const result = await newFilm.save();
 
@@ -17,13 +16,14 @@ export const saveMessage = async (message = null) => {
 
 export const getMessages = async (skip) => {
   try {
-    console.log(skip);
     const messages = await Message.find({})
-      .skip(skip)
-      .sort({ date: "asc" })
+      .sort({ date: "desc" })
+      .skip(10 * skip)
       .limit(10);
+
     const totalCount = await Message.count();
-    if (messages) return { messages: messages, totalCount: totalCount };
+    if (messages)
+      return { messages: messages.reverse(), totalCount: totalCount };
   } catch (err) {
     return err;
   }

@@ -3,10 +3,8 @@ import {
   SafeAreaView,
   View,
   Dimensions,
-  FlatList,
   StyleSheet,
-  ActivityIndicator,
-  Text,
+  FlatList,
 } from 'react-native';
 import { Input, FAB, Image } from '@rneui/base';
 import MessageItem from './components/MessageItem';
@@ -17,33 +15,41 @@ const List = () => {
   const screenHeight = Dimensions.get('screen').height - 90;
   const [messageContent, setMessageContent] = useState('');
   const [messages, setMessages] = useState([]);
-  const [totalMessage, setTotalMessage] = useState(0);
   const [lastPost, setLastPost] = useState(false);
+  const [skip, setSkip] = useState(0);
   const listContext = useListContext();
   const inputRef = useRef();
-  const [skip, setSkip] = useState(0);
-  const [scrollActive, setScrollActive] = useState(false);
   const { pageSize } = listContext.state;
 
   const getAllMessages = useCallback(() => {
-    getMessage(skip).then(({ data }) => {
-      setTotalMessage(data.totalCount);
+    getMessage(0).then(({ data }) => {
+      setLastPost(false);
+      setSkip(1);
       setMessages(data.messages);
-      setSkip(skip + 1);
     });
-  }, [skip]);
+  }, [messages]);
 
-  const getMoreMessage = useCallback(() => {
+  const getMoreMessage = async () => {
     if (!lastPost) {
-      let lastSkip = (skip - 1) * pageSize;
-      getMessage(lastSkip).then(({ data }) => {
-        setTotalMessage(data.totalCount);
-        setMessages([...messages, ...data.messages]);
-        setSkip(skip + 1);
-        data.messages.length === 0 ? setLastPost(true) : setLastPost(false);
+      await getMessage(skip).then(({ data }) => {
+        const dataSize = data.messages.length;
+
+        if (dataSize) {
+          if (pageSize === dataSize) {
+            setSkip(skip + 1);
+          } else {
+            setLastPost(true);
+          }
+          return setMessages([...data.messages, ...messages]);
+        } else {
+          setLastPost(true);
+          return null;
+        }
       });
+    } else {
+      return null;
     }
-  }, [skip]);
+  };
 
   const postMessage = async () => {
     await sendMessage({ content: messageContent, fromSelf: 1 });
@@ -56,10 +62,6 @@ const List = () => {
       await sendMessage({ content: messageContent, fromSelf: 0 });
       getAllMessages();
     }, 1000);
-  };
-
-  const checkIsLoadingFinished = () => {
-    return lastPost === false ? <ActivityIndicator size="large" /> : null;
   };
 
   useEffect(() => {
@@ -86,14 +88,14 @@ const List = () => {
             <FlatList
               style={{ height: 650, flexGrow: 0 }}
               data={messages}
-              onScroll={() => setScrollActive(true)}
               renderItem={item => <MessageItem message={item} key={item} />}
-              keyExtractor={item => item._id}
-              inverted
-              ListHeaderComponent={checkIsLoadingFinished}
+              keyExtractor={(item, index) => `${item._id}_${index}`}
               contentContainerStyle={{ flexDirection: 'column-reverse' }}
               onEndReached={getMoreMessage}
-              onEndReachedThreshold={0.5}
+              onEndReachedThreshold={0.2}
+              bounces={false}
+              enableAutoscrollToTop={false}
+              inverted
             />
           ) : (
             <></>
@@ -114,7 +116,7 @@ const List = () => {
           />
         </View>
 
-        <View style={{ display: 'flex', justifyContent: 'center' }}>
+        <View className="flex justify-center">
           <FAB
             visible={true}
             icon={{ name: 'send', color: 'white' }}
