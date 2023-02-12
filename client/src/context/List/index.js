@@ -10,7 +10,8 @@ const ListContext = createContext();
 
 export const ListContextProvider = ({ children }) => {
   const initialState = {
-    characters: [],
+    skip: 1,
+    pageSize: 10,
   };
 
   const [state, setContextState] = useState(initialState);
@@ -25,61 +26,19 @@ export const ListContextProvider = ({ children }) => {
     [setContextState],
   );
 
-  const arrayMergeState = useCallback(
-    partialState => {
-      setContextState(prevState => {
-        const mergeArray = {
-          characters: [...prevState.characters, ...partialState],
-        };
-
-        return {
-          ...prevState,
-          ...mergeArray,
-        };
-      });
-    },
-    [setContextState],
-  );
-
-  const setStorageData = useCallback(
+  const setSkip = useCallback(
     value => {
-      arrayMergeState([value]);
-    },
-    [arrayMergeState],
-  );
-
-  const setCharacters = useCallback(
-    value => {
-      mergeState({ characters: value });
+      mergeState({ skip: value });
     },
     [mergeState],
-  );
-
-  const removeListItem = useCallback(
-    index => {
-      setContextState(prevState => {
-        prevState.characters.splice(index, 1);
-        const mergeArray = {
-          characters: prevState.characters,
-        };
-
-        return {
-          ...prevState,
-          ...mergeArray,
-        };
-      });
-    },
-    [setContextState],
   );
 
   const providerValue = useMemo(
     () => ({
       state,
-      setCharacters,
-      setStorageData,
-      removeListItem,
+      setSkip,
     }),
-    [state, setCharacters, setStorageData, removeListItem],
+    [state, setSkip],
   );
 
   return (

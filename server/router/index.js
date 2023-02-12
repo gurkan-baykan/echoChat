@@ -14,7 +14,7 @@ router.post("/sendMessage", (req, res) => {
 });
 
 router.get("/getMessages", (req, res) => {
-  getMessages()
+  getMessages(req.query.skip)
     .then((result) => {
       return res.status(200).send(result);
     })

@@ -10,34 +10,56 @@ import {
 } from 'react-native';
 import { Input, FAB, Image } from '@rneui/base';
 import MessageItem from './components/MessageItem';
+import { useListContext } from '../../context/List';
 import { sendMessage, getMessage } from '../../services/List';
-import ToastComponent from '../../components/ToastComponent';
 
-const List = ({ navigation }) => {
+const List = () => {
   const screenHeight = Dimensions.get('screen').height - 90;
   const [messageContent, setMessageContent] = useState('');
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [totalMessage, setTotalMessage] = useState(0);
+  const [lastPost, setLastPost] = useState(false);
+  const listContext = useListContext();
   const inputRef = useRef();
-  const toastRef = useRef();
+  const [skip, setSkip] = useState(0);
+  const [scrollActive, setScrollActive] = useState(false);
+  const { pageSize } = listContext.state;
+
   const getAllMessages = useCallback(() => {
-    setLoading(true);
-    getMessage().then(({ data }) => {
-      setMessages(data);
-      setLoading(false);
+    getMessage(skip).then(({ data }) => {
+      setTotalMessage(data.totalCount);
+      setMessages(data.messages);
+      setSkip(skip + 1);
     });
-  }, []);
+  }, [skip]);
+
+  const getMoreMessage = useCallback(() => {
+    if (!lastPost) {
+      let lastSkip = (skip - 1) * pageSize;
+      getMessage(lastSkip).then(({ data }) => {
+        setTotalMessage(data.totalCount);
+        setMessages([...messages, ...data.messages]);
+        setSkip(skip + 1);
+        data.messages.length === 0 ? setLastPost(true) : setLastPost(false);
+      });
+    }
+  }, [skip]);
 
   const postMessage = async () => {
     await sendMessage({ content: messageContent, fromSelf: 1 });
     getAllMessages();
     setMessageContent('');
+
     inputRef.current.focus();
+
     setTimeout(async () => {
       await sendMessage({ content: messageContent, fromSelf: 0 });
       getAllMessages();
-      toastRef.current.showToast({ type: 'error', text: messageContent });
     }, 1000);
+  };
+
+  const checkIsLoadingFinished = () => {
+    return lastPost === false ? <ActivityIndicator size="large" /> : null;
   };
 
   useEffect(() => {
@@ -48,7 +70,7 @@ const List = ({ navigation }) => {
     <View>
       <View style={{ height: screenHeight }}>
         <SafeAreaView className="flex">
-          <View className="flex flex-row bg-zinc-400 w-full items-center  ">
+          <View className="flex flex-row bg-white w-full items-center  ">
             <Image
               width={150}
               height={50}
@@ -58,18 +80,20 @@ const List = ({ navigation }) => {
               style={{ width: 150, height: 50, marginHorizontal: 8 }}
               resizeMode={'contain'}
             />
-            <Text className="text-lg mx-3"> Canlı Destek</Text>
           </View>
+
           {messages.length ? (
             <FlatList
               style={{ height: 650, flexGrow: 0 }}
               data={messages}
-              renderItem={item => <MessageItem message={item} />}
-              onEndReachedThreshold={0.2}
-              onEndReached={() => getAllMessages()}
+              onScroll={() => setScrollActive(true)}
+              renderItem={item => <MessageItem message={item} key={item} />}
               keyExtractor={item => item._id}
               inverted
+              ListHeaderComponent={checkIsLoadingFinished}
               contentContainerStyle={{ flexDirection: 'column-reverse' }}
+              onEndReached={getMoreMessage}
+              onEndReachedThreshold={0.5}
             />
           ) : (
             <></>

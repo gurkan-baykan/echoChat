@@ -15,11 +15,15 @@ export const saveMessage = async (message = null) => {
   }
 };
 
-export const getMessages = async () => {
+export const getMessages = async (skip) => {
   try {
-    const messages = await Message.find({}).sort({ date: "asc" }).limit(20);
-
-    if (messages) return messages;
+    console.log(skip);
+    const messages = await Message.find({})
+      .skip(skip)
+      .sort({ date: "asc" })
+      .limit(10);
+    const totalCount = await Message.count();
+    if (messages) return { messages: messages, totalCount: totalCount };
   } catch (err) {
     return err;
   }
