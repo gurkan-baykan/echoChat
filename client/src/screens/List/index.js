@@ -7,6 +7,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Input, FAB, Image } from '@rneui/base';
 import MessageItem from './components/MessageItem';
@@ -15,56 +16,65 @@ import { sendMessage, getMessage } from '../../services/List';
 
 const { OS } = Platform;
 const List = () => {
-  const screenHeight = Dimensions.get('screen').height - 90;
+  const screenHeight =
+    Dimensions.get('screen').height - (OS === 'ios' ? 90 : 140);
   const [messageContent, setMessageContent] = useState('');
   const [messages, setMessages] = useState([]);
   const [lastPost, setLastPost] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [skip, setSkip] = useState(0);
   const listContext = useListContext();
   const inputRef = useRef();
   const { pageSize } = listContext.state;
-
+  const flatHeight = OS === 'ios' ? 650 : 580;
   const getAllMessages = useCallback(() => {
-    getMessage(0).then(({ data }) => {
-      setLastPost(false);
-      setSkip(1);
-      setMessages(data.messages);
-    });
+    getMessage(0)
+      .then(({ data }) => {
+        setLastPost(false);
+        setSkip(1);
+        setMessages(data.messages);
+      })
+      .catch(err => console.debug(err));
   }, [messages]);
 
   const getMoreMessage = async () => {
     if (!lastPost) {
-      await getMessage(skip).then(({ data }) => {
-        const dataSize = data.messages.length;
-
-        if (dataSize) {
-          if (pageSize === dataSize) {
-            setSkip(skip + 1);
+      setLoading(true);
+      await getMessage(skip)
+        .then(({ data }) => {
+          const dataSize = data.messages.length;
+          setLoading(false);
+          if (dataSize) {
+            if (pageSize === dataSize) {
+              setSkip(skip + 1);
+            } else {
+              setLastPost(true);
+            }
+            return setMessages([...data.messages, ...messages]);
           } else {
             setLastPost(true);
+            return null;
           }
-          return setMessages([...data.messages, ...messages]);
-        } else {
-          setLastPost(true);
-          return null;
-        }
-      });
+        })
+        .catch(err => console.debug(err));
     } else {
       return null;
     }
   };
 
   const postMessage = async () => {
-    await sendMessage({ content: messageContent, fromSelf: 1 });
-    getAllMessages();
-    setMessageContent('');
-
-    inputRef.current.focus();
-
-    setTimeout(async () => {
-      await sendMessage({ content: messageContent, fromSelf: 0 });
+    if (messageContent !== '') {
+      await sendMessage({ content: messageContent, fromSelf: 1 });
       getAllMessages();
-    }, 1000);
+      setMessageContent('');
+
+      inputRef.current.focus();
+
+      setTimeout(async () => {
+        await sendMessage({ content: messageContent, fromSelf: 0 });
+        getAllMessages();
+      }, 1000);
+    }
   };
 
   useEffect(() => {
@@ -72,11 +82,8 @@ const List = () => {
   }, []);
 
   return (
-    <View className="flex ">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'position' : 'padding'}
-        keyboardVerticalOffset={47}
-      >
+    <View className={`flex flex-1 `}>
+      <KeyboardAvoidingView behavior={'position'} keyboardVerticalOffset={20}>
         <View style={{ height: screenHeight }}>
           <SafeAreaView className="flex">
             <View className="flex flex-row bg-white w-full items-center  ">
@@ -91,9 +98,15 @@ const List = () => {
               />
             </View>
 
+            {loading === true ? (
+              <View>
+                <ActivityIndicator size={'large'} />
+              </View>
+            ) : null}
+
             {messages.length ? (
               <FlatList
-                style={{ height: 650, flexGrow: 0 }}
+                style={{ height: flatHeight, flexGrow: 0 }}
                 data={messages}
                 renderItem={item => <MessageItem message={item} key={item} />}
                 keyExtractor={(item, index) => `${item._id}_${index}`}
