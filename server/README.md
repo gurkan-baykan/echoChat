@@ -1,1 +1,3 @@
-Project run :cd server & yarn dev
+## Usage
+
+- `yarn dev` -- (`nodemon connect.js`) Run server
