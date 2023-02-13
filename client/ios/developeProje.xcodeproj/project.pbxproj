@@ -38,6 +38,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = developeProje/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-developeProje-developeProjeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-developeProje-developeProjeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-developeProje.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-developeProje.debug.xcconfig"; path = "Target Support Files/Pods-developeProje/Pods-developeProje.debug.xcconfig"; sourceTree = "<group>"; };
+		40F09D90299A0F3300BF6E49 /* developeProje.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = developeProje.entitlements; path = developeProje/developeProje.entitlements; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-developeProje.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-developeProje.release.xcconfig"; path = "Target Support Files/Pods-developeProje/Pods-developeProje.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-developeProje-developeProjeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-developeProje-developeProjeTests.debug.xcconfig"; path = "Target Support Files/Pods-developeProje-developeProjeTests/Pods-developeProje-developeProjeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-developeProje.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-developeProje.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +87,7 @@
 		13B07FAE1A68108700A75B9A /* developeProje */ = {
 			isa = PBXGroup;
 			children = (
+				40F09D90299A0F3300BF6E49 /* developeProje.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -485,6 +487,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = developeProje/developeProje.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = developeProje/Info.plist;
@@ -511,6 +514,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = developeProje/developeProje.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = developeProje/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

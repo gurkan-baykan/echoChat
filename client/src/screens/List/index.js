@@ -11,6 +11,10 @@ import {
 } from 'react-native';
 import { Input, FAB, Image } from '@rneui/base';
 import MessageItem from './components/MessageItem';
+import {
+  showNotification,
+  handleNotificationSchedule,
+} from '../../pushNotifacitonIos';
 import { useListContext } from '../../context/List';
 import { sendMessage, getMessage } from '../../services/List';
 
@@ -27,6 +31,7 @@ const List = () => {
   const inputRef = useRef();
   const { pageSize } = listContext.state;
   const flatHeight = OS === 'ios' ? 650 : 580;
+
   const getAllMessages = useCallback(() => {
     getMessage(0)
       .then(({ data }) => {
@@ -65,6 +70,11 @@ const List = () => {
   const postMessage = async () => {
     if (messageContent !== '') {
       await sendMessage({ content: messageContent, fromSelf: 1 });
+      handleNotificationSchedule({
+        messageId: new Date().valueOf().toString(),
+        title: 'You have new message',
+        message: messageContent,
+      });
       getAllMessages();
       setMessageContent('');
 
