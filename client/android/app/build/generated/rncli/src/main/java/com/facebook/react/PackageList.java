@@ -17,8 +17,6 @@ import io.liteglue.SQLitePluginPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 // @stream-io/flat-list-mvcp
 import com.mvcpscrollviewmanager.MvcpScrollViewManagerPackage;
-// react-native-push-notification
-import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 // react-native-safe-area-context
 import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 // react-native-screens
@@ -73,7 +71,6 @@ public class PackageList {
       new SQLitePluginPackage(),
       new AsyncStoragePackage(),
       new MvcpScrollViewManagerPackage(),
-      new ReactNativePushNotificationPackage(),
       new SafeAreaContextPackage(),
       new RNScreensPackage(),
       new VectorIconsPackage()
